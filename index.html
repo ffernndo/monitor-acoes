@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor de Acoes B3 — Cotacoes em Tempo Real</title>
+    <meta name="description" content="Acompanhe as principais acoes da B3 com cotacoes atualizadas, variacao, volume e graficos. Dados via Brapi.dev.">
+    <meta property="og:title" content="Monitor de Acoes B3">
+    <meta property="og:description" content="Dashboard de acoes da Bolsa brasileira com atualizacao em tempo quase real.">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect rx='12' width='100' height='100' fill='%230d1117'/><path d='M20 70L40 40L60 55L80 25' stroke='%235eead4' stroke-width='8' stroke-linecap='round' fill='none'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-inner">
+                <div class="header-left">
+                    <div class="header-logo"><span>B3</span> Monitor</div>
+                    <span class="header-badge" id="statusBadge">LIVE</span>
+                </div>
+                <div class="header-right">
+                    <span class="header-timestamp" id="lastUpdate">Carregando...</span>
+                    <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema">&#9788;</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main -->
+        <main class="main">
+            <!-- KPI Cards -->
+            <div class="kpi-grid" id="kpiGrid">
+                <div class="kpi-card kpi-loading"><div class="kpi-label">IBOVESPA</div><div class="kpi-value">--</div></div>
+                <div class="kpi-card kpi-loading"><div class="kpi-label">DOLAR</div><div class="kpi-value">--</div></div>
+                <div class="kpi-card kpi-loading"><div class="kpi-label">ACOES POSITIVAS</div><div class="kpi-value">--</div></div>
+                <div class="kpi-card kpi-loading"><div class="kpi-label">VOLUME TOTAL</div><div class="kpi-value">--</div></div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filter-bar">
+                <input type="text" class="search-input" id="searchInput" placeholder="Buscar ticker..." autocomplete="off">
+                <div class="filter-pills" id="filterPills">
+                    <button class="pill active" data-sector="todos">Todos</button>
+                    <button class="pill" data-sector="bancos">Bancos</button>
+                    <button class="pill" data-sector="petroleo">Petroleo</button>
+                    <button class="pill" data-sector="mineracao">Mineracao</button>
+                    <button class="pill" data-sector="varejo">Varejo</button>
+                    <button class="pill" data-sector="industria">Industria</button>
+                </div>
+                <select class="sort-select" id="sortSelect">
+                    <option value="variacao">Variacao</option>
+                    <option value="preco">Preco</option>
+                    <option value="volume">Volume</option>
+                    <option value="nome">Nome</option>
+                </select>
+            </div>
+
+            <!-- Grid de Ações -->
+            <div class="stock-grid" id="stockGrid">
+                <div class="stock-loading">
+                    <div class="spinner"></div>
+                    <span>Carregando cotacoes...</span>
+                </div>
+            </div>
+
+            <!-- Detalhes (modal) -->
+            <div class="detail-overlay" id="detailOverlay">
+                <div class="detail-card" id="detailCard"></div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-inner">
+                Dados: <a href="https://brapi.dev" target="_blank" rel="noopener">Brapi.dev</a> &mdash; Atualizacao a cada 60s durante o pregao (10h-17h)<br>
+                Este painel nao constitui recomendacao de investimento.<br>
+                <a href="https://github.com/Fexndev/monitor-acoes" target="_blank">GitHub</a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
