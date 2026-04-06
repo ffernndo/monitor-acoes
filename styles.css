@@ -334,6 +334,26 @@ body {
    NO RESULTS
    ═══════════════════════════════════════ */
 
+/* Sparkline */
+.sparkline { flex-shrink: 0; }
+
+/* Sector tag */
+.stock-sector-tag {
+    font-size: .55rem; font-weight: 600; color: var(--text-muted);
+    background: var(--bg-page); padding: 1px 6px; border-radius: 8px;
+    margin-left: 6px; vertical-align: middle;
+}
+
+/* Progress bar (loading) */
+.progress-bar {
+    width: 200px; height: 4px; background: var(--border);
+    border-radius: 2px; overflow: hidden; margin-top: 4px;
+}
+.progress-fill {
+    height: 100%; background: var(--accent-teal);
+    border-radius: 2px; transition: width .3s;
+}
+
 .no-results {
     grid-column: 1 / -1; text-align: center; padding: 40px;
     color: var(--text-muted); font-size: .88rem;
