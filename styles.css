@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════
-   MONITOR DE AÇÕES B3 — Design Tokens
+   B3 STOCK MONITOR | Design Tokens
    ═══════════════════════════════════════ */
 
 :root {
@@ -263,7 +263,7 @@ body {
     font-weight: 600; color: var(--text-secondary);
 }
 
-/* Range bar (52 semanas) */
+/* Range bar (52 weeks) */
 .range-bar {
     flex: 1; height: 4px; background: var(--border);
     border-radius: 2px; position: relative; min-width: 80px;

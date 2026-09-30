@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitor de Acoes B3 — Cotacoes em Tempo Real</title>
-    <meta name="description" content="Acompanhe as principais acoes da B3 com cotacoes atualizadas, variacao, volume e graficos. Dados via Brapi.dev.">
-    <meta property="og:title" content="Monitor de Acoes B3">
-    <meta property="og:description" content="Dashboard de acoes da Bolsa brasileira com atualizacao em tempo quase real.">
+    <title>B3 Stock Monitor | Real-Time Quotes</title>
+    <meta name="description" content="Track the main stocks on Brazil's B3 exchange with live quotes, change, volume and charts. Data via Brapi.dev.">
+    <meta property="og:title" content="B3 Stock Monitor">
+    <meta property="og:description" content="Brazilian stock market dashboard with near real-time updates.">
     <meta property="og:type" content="website">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect rx='12' width='100' height='100' fill='%230d1117'/><path d='M20 70L40 40L60 55L80 25' stroke='%235eead4' stroke-width='8' stroke-linecap='round' fill='none'/></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,8 +24,8 @@
                     <span class="header-badge" id="statusBadge">LIVE</span>
                 </div>
                 <div class="header-right">
-                    <span class="header-timestamp" id="lastUpdate">Carregando...</span>
-                    <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema">&#9788;</button>
+                    <span class="header-timestamp" id="lastUpdate">Loading...</span>
+                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">&#9788;</button>
                 </div>
             </div>
         </header>
@@ -35,41 +35,41 @@
             <!-- KPI Cards -->
             <div class="kpi-grid" id="kpiGrid">
                 <div class="kpi-card kpi-loading"><div class="kpi-label">IBOVESPA</div><div class="kpi-value">--</div></div>
-                <div class="kpi-card kpi-loading"><div class="kpi-label">DOLAR</div><div class="kpi-value">--</div></div>
-                <div class="kpi-card kpi-loading"><div class="kpi-label">ACOES POSITIVAS</div><div class="kpi-value">--</div></div>
-                <div class="kpi-card kpi-loading"><div class="kpi-label">VOLUME TOTAL</div><div class="kpi-value">--</div></div>
+                <div class="kpi-card kpi-loading"><div class="kpi-label">USD/BRL</div><div class="kpi-value">--</div></div>
+                <div class="kpi-card kpi-loading"><div class="kpi-label">STOCKS UP</div><div class="kpi-value">--</div></div>
+                <div class="kpi-card kpi-loading"><div class="kpi-label">TOTAL VOLUME</div><div class="kpi-value">--</div></div>
             </div>
 
-            <!-- Filtros -->
+            <!-- Filters -->
             <div class="filter-bar">
-                <input type="text" class="search-input" id="searchInput" placeholder="Buscar ou adicionar (Enter)" autocomplete="off">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search or add (Enter)" autocomplete="off">
                 <div class="filter-pills" id="filterPills">
-                    <button class="pill active" data-sector="todos">Todos</button>
-                    <button class="pill" data-sector="bancos">Bancos</button>
-                    <button class="pill" data-sector="petroleo">Petroleo</button>
-                    <button class="pill" data-sector="mineracao">Mineracao</button>
-                    <button class="pill" data-sector="varejo">Varejo</button>
-                    <button class="pill" data-sector="industria">Industria</button>
-                    <button class="pill" data-sector="energia">Energia</button>
-                    <button class="pill" data-sector="outros">Outros</button>
+                    <button class="pill active" data-sector="todos">All</button>
+                    <button class="pill" data-sector="bancos">Banks</button>
+                    <button class="pill" data-sector="petroleo">Oil & Gas</button>
+                    <button class="pill" data-sector="mineracao">Mining</button>
+                    <button class="pill" data-sector="varejo">Retail</button>
+                    <button class="pill" data-sector="industria">Industrials</button>
+                    <button class="pill" data-sector="energia">Utilities</button>
+                    <button class="pill" data-sector="outros">Other</button>
                 </div>
                 <select class="sort-select" id="sortSelect">
-                    <option value="variacao">Variacao</option>
-                    <option value="preco">Preco</option>
+                    <option value="variacao">Change</option>
+                    <option value="preco">Price</option>
                     <option value="volume">Volume</option>
-                    <option value="nome">Nome</option>
+                    <option value="nome">Name</option>
                 </select>
             </div>
 
-            <!-- Grid de Ações -->
+            <!-- Stock grid -->
             <div class="stock-grid" id="stockGrid">
                 <div class="stock-loading">
                     <div class="spinner"></div>
-                    <span>Carregando cotacoes...</span>
+                    <span>Loading quotes...</span>
                 </div>
             </div>
 
-            <!-- Detalhes (modal) -->
+            <!-- Details (modal) -->
             <div class="detail-overlay" id="detailOverlay">
                 <div class="detail-card" id="detailCard"></div>
             </div>
@@ -78,8 +78,8 @@
         <!-- Footer -->
         <footer class="footer">
             <div class="footer-inner">
-                Dados: <a href="https://brapi.dev" target="_blank" rel="noopener">Brapi.dev</a> &mdash; Atualizacao a cada 60s durante o pregao (10h-17h)<br>
-                Este painel nao constitui recomendacao de investimento.<br>
+                Data: <a href="https://brapi.dev" target="_blank" rel="noopener">Brapi.dev</a> | Updated every 60s during trading hours (10am to 5pm BRT)<br>
+                This dashboard is not investment advice.<br>
                 <a href="https://github.com/Fexndev/monitor-acoes" target="_blank">GitHub</a>
             </div>
         </footer>

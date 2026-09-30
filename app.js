@@ -1,58 +1,58 @@
 /* ═══════════════════════════════════════
-   MONITOR DE AÇÕES B3
-   Cotações via Yahoo Finance + allorigins proxy
+   B3 STOCK MONITOR
+   Quotes via Yahoo Finance + allorigins proxy
    ═══════════════════════════════════════ */
 
-/* ─── CONFIGURAÇÃO ────────────────────── */
+/* ─── CONFIGURATION ───────────────────── */
 
-/** Proxy CORS para acessar Yahoo Finance do browser */
+/** CORS proxy to reach Yahoo Finance from the browser */
 const PROXY = 'https://api.allorigins.win/raw?url=';
 const YAHOO = 'https://query1.finance.yahoo.com/v8/finance/chart/';
 
-/** Tickers agrupados por setor */
+/** Tickers grouped by sector */
 const SETORES = {
-    bancos:     { label: 'Bancos',              tickers: ['ITUB4','BBDC4','BBAS3','ITSA4','B3SA3','SANB11'] },
-    petroleo:   { label: 'Petroleo/Energia',    tickers: ['PETR4','PETR3','PRIO3','CSAN3','UGPA3'] },
-    mineracao:  { label: 'Mineracao/Siderurgia', tickers: ['VALE3','SUZB3','GGBR4','CSNA3','KLBN11'] },
-    varejo:     { label: 'Varejo/Consumo',      tickers: ['MGLU3','LREN3','ABEV3','RADL3','NTCO3'] },
-    industria:  { label: 'Industria',           tickers: ['WEGE3','RENT3','JBSS3','HAPV3','EMBR3'] },
-    energia:    { label: 'Energia/Util.',       tickers: ['ELET3','EQTL3','CPFE3','TAEE11','CMIG4'] },
-    outros:     { label: 'Outros',              tickers: ['VIVT3','TOTS3','BBSE3','CCRO3','RAIL3'] },
+    bancos:     { label: 'Banks',               tickers: ['ITUB4','BBDC4','BBAS3','ITSA4','B3SA3','SANB11'] },
+    petroleo:   { label: 'Oil & Gas',           tickers: ['PETR4','PETR3','PRIO3','CSAN3','UGPA3'] },
+    mineracao:  { label: 'Mining & Steel'      , tickers: ['VALE3','SUZB3','GGBR4','CSNA3','KLBN11'] },
+    varejo:     { label: 'Retail & Consumer',   tickers: ['MGLU3','LREN3','ABEV3','RADL3','NTCO3'] },
+    industria:  { label: 'Industrials',         tickers: ['WEGE3','RENT3','JBSS3','HAPV3','EMBR3'] },
+    energia:    { label: 'Utilities',           tickers: ['ELET3','EQTL3','CPFE3','TAEE11','CMIG4'] },
+    outros:     { label: 'Other',               tickers: ['VIVT3','TOTS3','BBSE3','CCRO3','RAIL3'] },
 };
 
-/** Lista flat de todos os tickers */
+/** Flat list of every ticker */
 const ALL_TICKERS = Object.values(SETORES).flatMap(s => s.tickers);
 
-/** Mapa reverso: ticker → setor key */
+/** Reverse map: ticker → sector key */
 const SETOR_MAP = {};
 for (const [key, { tickers }] of Object.entries(SETORES)) {
     tickers.forEach(t => SETOR_MAP[t] = key);
 }
 
-/** Intervalo de polling (ms) */
+/** Polling interval (ms) */
 const POLL_INTERVAL = 60000;
 
-/** Delay entre requests batch (ms) */
+/** Delay between batch requests (ms) */
 const BATCH_DELAY = 150;
 
-/* ─── ESTADO ──────────────────────────── */
+/* ─── STATE ───────────────────────────── */
 
 const APP = {
     quotes: {},        // { PETR4: { symbol, price, change, ... } }
-    history: {},       // { PETR4: [{ date, close }, ...] } — últimos 30 dias
+    history: {},       // { PETR4: [{ date, close }, ...] } (last 30 days)
     filter: 'todos',
     sort: 'variacao',
     search: '',
     polling: null,
     loading: true,
-    customTickers: [],  // tickers adicionados pelo usuário
+    customTickers: [],  // tickers added by the user
 };
 
 /* ─── API (Yahoo Finance + proxy) ─────── */
 
 /**
- * Busca cotação e histórico de 1 mês de um ticker via Yahoo Finance.
- * @param {string} ticker - Ticker B3 (sem .SA)
+ * Fetches the quote and 1-month history of a ticker from Yahoo Finance.
+ * @param {string} ticker - B3 ticker (without .SA)
  * @returns {{ quote: Object, history: Array } | null}
  */
 async function fetchTicker(ticker) {
@@ -72,7 +72,7 @@ async function fetchTicker(ticker) {
         const highs = result.indicators?.quote?.[0]?.high || [];
         const lows = result.indicators?.quote?.[0]?.low || [];
 
-        // Cotação atual
+        // Current quote
         const quote = {
             symbol: ticker,
             longName: meta.longName || meta.shortName || ticker,
@@ -89,7 +89,7 @@ async function fetchTicker(ticker) {
             currency: meta.currency || 'BRL',
         };
 
-        // Histórico para gráfico
+        // History for the chart
         const history = timestamps.map((t, i) => ({
             date: new Date(t * 1000).toISOString().slice(0, 10),
             close: closes[i],
@@ -98,13 +98,13 @@ async function fetchTicker(ticker) {
 
         return { quote, history };
     } catch (e) {
-        console.warn(`Erro ${ticker}:`, e.message);
+        console.warn(`Error ${ticker}:`, e.message);
         return null;
     }
 }
 
 /**
- * Busca todos os tickers em batch com delay entre cada.
+ * Fetches every ticker in a batch with a delay between each one.
  * @param {string[]} tickers
  */
 async function fetchAll(tickers) {
@@ -118,7 +118,7 @@ async function fetchAll(tickers) {
             APP.history[ticker] = data.history;
         }
         loaded++;
-        // Atualizar progresso
+        // Update progress
         if (APP.loading) updateLoadingProgress(loaded, total);
         await sleep(BATCH_DELAY);
     }
@@ -126,20 +126,20 @@ async function fetchAll(tickers) {
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-/* ─── UTILITÁRIOS ─────────────────────── */
+/* ─── UTILITIES ───────────────────────── */
 
 function fmtBRL(v) {
     if (v == null) return '--';
-    return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return 'R$ ' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function fmtNum(v) {
     if (v == null) return '--';
-    if (v >= 1e12) return (v / 1e12).toFixed(1) + ' tri';
-    if (v >= 1e9) return (v / 1e9).toFixed(1) + ' bi';
-    if (v >= 1e6) return (v / 1e6).toFixed(1) + ' mi';
-    if (v >= 1e3) return (v / 1e3).toFixed(0) + ' mil';
-    return v.toLocaleString('pt-BR');
+    if (v >= 1e12) return (v / 1e12).toFixed(1) + 'T';
+    if (v >= 1e9) return (v / 1e9).toFixed(1) + 'B';
+    if (v >= 1e6) return (v / 1e6).toFixed(1) + 'M';
+    if (v >= 1e3) return (v / 1e3).toFixed(0) + 'K';
+    return v.toLocaleString('en-US');
 }
 
 function mercadoAberto() {
@@ -148,24 +148,24 @@ function mercadoAberto() {
 }
 
 function horaAtual() {
-    return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    return new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
-/* ─── RENDERIZAÇÃO ────────────────────── */
+/* ─── RENDERING ─────────────────────── */
 
-/** Barra de progresso de carregamento */
+/** Loading progress bar */
 function updateLoadingProgress(loaded, total) {
     const grid = document.getElementById('stockGrid');
     if (!grid) return;
     const pct = Math.round(loaded / total * 100);
     grid.innerHTML = `<div class="stock-loading">
         <div class="spinner"></div>
-        <span>Carregando cotacoes... ${loaded}/${total}</span>
+        <span>Loading quotes... ${loaded}/${total}</span>
         <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
     </div>`;
 }
 
-/** KPI cards: resumo do mercado */
+/** KPI cards: market summary */
 function renderKPIs() {
     const quotes = Object.values(APP.quotes);
     if (!quotes.length) return;
@@ -174,36 +174,36 @@ function renderKPIs() {
     const negativas = quotes.filter(q => q.changePercent < 0).length;
     const volumeTotal = quotes.reduce((s, q) => s + (q.volume || 0), 0);
 
-    // Maior alta e maior queda
+    // Top gainer and top loser
     const sorted = [...quotes].sort((a, b) => b.changePercent - a.changePercent);
     const maiorAlta = sorted[0];
     const maiorQueda = sorted[sorted.length - 1];
 
     document.getElementById('kpiGrid').innerHTML = `
         <div class="kpi-card">
-            <div class="kpi-label">MAIOR ALTA</div>
+            <div class="kpi-label">TOP GAINER</div>
             <div class="kpi-value">${maiorAlta.symbol} <span class="kpi-delta up">▲ ${maiorAlta.changePercent.toFixed(2)}%</span></div>
             <div class="kpi-sub">${fmtBRL(maiorAlta.price)}</div>
         </div>
         <div class="kpi-card">
-            <div class="kpi-label">MAIOR QUEDA</div>
+            <div class="kpi-label">TOP LOSER</div>
             <div class="kpi-value">${maiorQueda.symbol} <span class="kpi-delta down">▼ ${Math.abs(maiorQueda.changePercent).toFixed(2)}%</span></div>
             <div class="kpi-sub">${fmtBRL(maiorQueda.price)}</div>
         </div>
         <div class="kpi-card">
-            <div class="kpi-label">ACOES MONITORADAS</div>
+            <div class="kpi-label">STOCKS TRACKED</div>
             <div class="kpi-value"><span style="color:var(--accent-green)">${positivas}▲</span> <span style="color:var(--accent-red)">${negativas}▼</span></div>
-            <div class="kpi-sub">${quotes.length} acoes no total</div>
+            <div class="kpi-sub">${quotes.length} stocks in total</div>
         </div>
         <div class="kpi-card">
-            <div class="kpi-label">VOLUME TOTAL</div>
+            <div class="kpi-label">TOTAL VOLUME</div>
             <div class="kpi-value">${fmtNum(volumeTotal)}</div>
-            <div class="kpi-sub">Atualizado ${horaAtual()}</div>
+            <div class="kpi-sub">Updated ${horaAtual()}</div>
         </div>
     `;
 }
 
-/** Gera mini sparkline SVG a partir de dados históricos */
+/** Builds a mini SVG sparkline from historical data */
 function sparklineSVG(history, up) {
     if (!history || history.length < 2) return '';
     const closes = history.map(p => p.close);
@@ -216,23 +216,23 @@ function sparklineSVG(history, up) {
     return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" class="sparkline"><polyline points="${points}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
 }
 
-/** Grid de cards de ações */
+/** Stock card grid */
 function renderGrid() {
     const grid = document.getElementById('stockGrid');
     let quotes = Object.values(APP.quotes);
 
-    // Filtro setor
+    // Sector filter
     if (APP.filter !== 'todos') {
         quotes = quotes.filter(q => SETOR_MAP[q.symbol] === APP.filter);
     }
 
-    // Busca
+    // Search
     if (APP.search) {
         const s = APP.search.toUpperCase();
         quotes = quotes.filter(q => q.symbol.includes(s) || q.longName.toUpperCase().includes(s));
     }
 
-    // Ordenação
+    // Sorting
     switch (APP.sort) {
         case 'variacao': quotes.sort((a, b) => b.changePercent - a.changePercent); break;
         case 'preco': quotes.sort((a, b) => b.price - a.price); break;
@@ -241,7 +241,7 @@ function renderGrid() {
     }
 
     if (!quotes.length) {
-        grid.innerHTML = '<div class="no-results">Nenhuma acao encontrada</div>';
+        grid.innerHTML = '<div class="no-results">No stocks found</div>';
         return;
     }
 
@@ -273,7 +273,7 @@ function renderGrid() {
     }).join('');
 }
 
-/** Abre detalhes com gráfico TradingView */
+/** Opens details with a TradingView chart */
 function openDetail(ticker) {
     const q = APP.quotes[ticker];
     const hist = APP.history[ticker];
@@ -296,17 +296,17 @@ function openDetail(ticker) {
         <div class="detail-var ${cls}">${up ? '▲' : '▼'} ${fmtBRL(Math.abs(q.change))} (${Math.abs(q.changePercent).toFixed(2)}%)</div>
         <div class="detail-chart" id="detailChartContainer"></div>
         <div class="detail-grid">
-            <div class="detail-item"><div class="detail-item-label">Fech. Anterior</div><div class="detail-item-value">${fmtBRL(q.prevClose)}</div></div>
+            <div class="detail-item"><div class="detail-item-label">Prev. close</div><div class="detail-item-value">${fmtBRL(q.prevClose)}</div></div>
             <div class="detail-item"><div class="detail-item-label">Volume</div><div class="detail-item-value">${fmtNum(q.volume)}</div></div>
-            <div class="detail-item"><div class="detail-item-label">Min 52 sem</div><div class="detail-item-value">${fmtBRL(q.week52Low)}</div></div>
-            <div class="detail-item"><div class="detail-item-label">Max 52 sem</div><div class="detail-item-value">${fmtBRL(q.week52High)}</div></div>
+            <div class="detail-item"><div class="detail-item-label">52-week low</div><div class="detail-item-value">${fmtBRL(q.week52Low)}</div></div>
+            <div class="detail-item"><div class="detail-item-label">52-week high</div><div class="detail-item-value">${fmtBRL(q.week52High)}</div></div>
             ${q.marketCap ? `<div class="detail-item"><div class="detail-item-label">Market Cap</div><div class="detail-item-value">${fmtNum(q.marketCap)}</div></div>` : ''}
         </div>
     `;
 
     overlay.classList.add('open');
 
-    // Gráfico com dados reais
+    // Chart with real data
     if (hist?.length && typeof LightweightCharts !== 'undefined') {
         const container = document.getElementById('detailChartContainer');
         const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
@@ -352,7 +352,7 @@ function updateStatus() {
     if (mercadoAberto()) {
         badge.textContent = 'LIVE'; badge.className = 'header-badge live';
     } else {
-        badge.textContent = 'FECHADO'; badge.className = 'header-badge closed';
+        badge.textContent = 'CLOSED'; badge.className = 'header-badge closed';
     }
     ts.textContent = horaAtual();
 }
@@ -377,7 +377,7 @@ function startPolling() {
     }, POLL_INTERVAL);
 }
 
-/* ─── ADICIONAR AÇÃO ──────────────────── */
+/* ─── ADD STOCK ───────────────────────── */
 
 function addTicker(ticker) {
     ticker = ticker.toUpperCase().trim();
@@ -385,7 +385,7 @@ function addTicker(ticker) {
     APP.customTickers.push(ticker);
     SETOR_MAP[ticker] = 'outros';
     if (!SETORES.outros.tickers.includes(ticker)) SETORES.outros.tickers.push(ticker);
-    // Buscar dados
+    // Fetch data
     fetchTicker(ticker).then(data => {
         if (data) {
             APP.quotes[ticker] = data.quote;
@@ -396,7 +396,7 @@ function addTicker(ticker) {
     });
 }
 
-/* ─── EVENTOS ─────────────────────────── */
+/* ─── EVENTS ──────────────────────────── */
 
 function init() {
     // Theme
@@ -411,7 +411,7 @@ function init() {
         document.getElementById('themeToggle').textContent = isDark ? '\u263E' : '\u2606';
     });
 
-    // Filtro setor
+    // Sector filter
     document.querySelectorAll('.pill').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
@@ -421,7 +421,7 @@ function init() {
         });
     });
 
-    // Busca — Enter para adicionar ticker novo
+    // Search: Enter adds a new ticker
     const searchEl = document.getElementById('searchInput');
     searchEl.addEventListener('input', () => { APP.search = searchEl.value.trim(); renderGrid(); });
     searchEl.addEventListener('keydown', (e) => {
@@ -432,7 +432,7 @@ function init() {
         }
     });
 
-    // Ordenação
+    // Sorting
     document.getElementById('sortSelect').addEventListener('change', (e) => {
         APP.sort = e.target.value;
         renderGrid();
@@ -444,7 +444,7 @@ function init() {
     });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDetail(); });
 
-    // Carregar
+    // Load
     updateStatus();
     pollCycle().then(() => startPolling());
 }

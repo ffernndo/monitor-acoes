@@ -1,53 +1,53 @@
-# Monitor de Acoes B3
+# B3 Stock Monitor
 
-Dashboard de acompanhamento das principais acoes da Bolsa brasileira com cotacoes atualizadas a cada 60 segundos durante o pregao.
+Dashboard that tracks the main stocks on Brazil's stock exchange (B3), with quotes refreshed every 60 seconds during trading hours.
 
-**[Acessar o Monitor](https://fexndev.github.io/monitor-acoes/)**
+**[Open the monitor](https://fexndev.github.io/monitor-acoes/)**
 
 ---
 
-## Funcionalidades
+## Features
 
-- **20 acoes monitoradas** — PETR4, VALE3, ITUB4, BBDC4, BBAS3 e mais
-- **KPI cards** — IBOVESPA, Dolar, acoes em alta/queda, volume total
-- **Atualizacao automatica** — polling a cada 60s quando o mercado esta aberto (10h-17h BRT)
-- **Filtro por setor** — Bancos, Petroleo, Mineracao, Varejo, Industria
-- **Busca por ticker** — filtro em tempo real
-- **Ordenacao** — por variacao, preco, volume ou nome
-- **Detalhes** — clique no card para ver grafico intraday, P/L, LPA, range 52 semanas
-- **Status ao vivo** — badge LIVE/FECHADO com deteccao automatica de horario
-- **Dark/light mode** com persistencia
+- **20 tracked stocks**: PETR4, VALE3, ITUB4, BBDC4, BBAS3 and more
+- **KPI cards**: IBOVESPA, USD/BRL, stocks up/down, total volume
+- **Automatic refresh**: polling every 60s while the market is open (10am to 5pm BRT)
+- **Sector filter**: Banks, Oil & Gas, Mining, Retail, Industrials
+- **Ticker search**: real-time filter
+- **Sorting**: by change, price, volume or name
+- **Details**: click a card to see the intraday chart, P/E, EPS and 52-week range
+- **Live status**: LIVE/CLOSED badge with automatic market-hours detection
+- **Dark/light mode** with persistence
 
-## Setores
+## Sectors
 
-| Setor | Acoes |
-|-------|-------|
-| Bancos | ITUB4, BBDC4, BBAS3, ITSA4, B3SA3 |
-| Petroleo/Energia | PETR4, PETR3, PRIO3, CSAN3 |
-| Mineracao/Siderurgia | VALE3, SUZB3, GGBR4 |
-| Varejo/Consumo | MGLU3, LREN3, ABEV3, RADL3 |
-| Industria | WEGE3, RENT3, JBSS3, HAPV3 |
+| Sector | Stocks |
+|--------|--------|
+| Banks | ITUB4, BBDC4, BBAS3, ITSA4, B3SA3 |
+| Oil & Gas / Energy | PETR4, PETR3, PRIO3, CSAN3 |
+| Mining & Steel | VALE3, SUZB3, GGBR4 |
+| Retail & Consumer | MGLU3, LREN3, ABEV3, RADL3 |
+| Industrials | WEGE3, RENT3, JBSS3, HAPV3 |
 
 ## API
 
-Dados fornecidos por [Brapi.dev](https://brapi.dev) — API gratuita de cotacoes da B3.
+Data provided by [Brapi.dev](https://brapi.dev), a free API for B3 quotes.
 
 - Endpoint: `https://brapi.dev/api/quote/{TICKER}`
-- Rate limit: ~1 req/s (requests sequenciais com delay de 300ms)
-- Dados: preco, variacao, volume, high/low, market cap, P/L, EPS, range 52 semanas
+- Rate limit: ~1 req/s (sequential requests with a 300ms delay)
+- Data: price, change, volume, high/low, market cap, P/E, EPS, 52-week range
 
 ## Stack
 
-- HTML + CSS + JavaScript vanilla
-- TradingView Lightweight Charts (graficos intraday)
-- GitHub Pages (deploy estatico)
+- HTML + CSS + vanilla JavaScript
+- TradingView Lightweight Charts (intraday charts)
+- GitHub Pages (static deploy)
 
-## Estrutura
+## Structure
 
 ```
 monitor-acoes/
-├── index.html    # Estrutura + CDNs
-├── app.js        # API, polling, render, filtros, detalhes
-├── styles.css    # Design system dark/light
+├── index.html    # Structure + CDNs
+├── app.js        # API, polling, rendering, filters, details
+├── styles.css    # Dark/light design system
 └── README.md
 ```
